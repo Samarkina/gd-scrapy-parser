@@ -1,14 +1,6 @@
 import scrapy
 import re
-
-def do_urls(references):
-
-    url = 'https://blog.griddynamics.com/'
-    urls = []
-    for ref in references:
-        urls.append(url + ref)
-
-    return urls
+import parser.spiders.common.functions as func
 
 class ArticlesSpider(scrapy.Spider):
     name = "articles"
@@ -23,7 +15,7 @@ class ArticlesSpider(scrapy.Spider):
     def parse(self, response):
         topics = response.css('span').xpath('@data-value').getall()
 
-        urls = do_urls(topics)
+        urls = func.do_urls(topics)
 
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse_topics)
@@ -35,7 +27,7 @@ class ArticlesSpider(scrapy.Spider):
 
         topReferences = response.css('div.container').css('a.card.featured').xpath('@href').extract()
 
-        urls = do_urls(references + topReferences)
+        urls = func.do_urls(references + topReferences)
 
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse_article)
