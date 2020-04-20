@@ -3,6 +3,7 @@
 
 # Other
 .DS_Store
+/src/parser/resources/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

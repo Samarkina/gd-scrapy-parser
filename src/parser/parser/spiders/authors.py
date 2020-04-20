@@ -26,8 +26,8 @@ class AuthorsSpider(scrapy.Spider):
         linkedIn = response.css('.authorcard.popup .socicon.li a[href]::attr(href)').extract() # 3
         counterArticles = len(response.css('.authorcard.popup .postsrow a[href]::attr(href)').extract()) # 4
 
-        return {"name": name, "jobTitle": jobTitle, "linkedIn": linkedIn, "counterArticles": counterArticles}
-
+        data = {"name": name, "jobTitle": jobTitle, "linkedIn": linkedIn, "counterArticles": counterArticles}
+        func.upload_data(self, "authors", data)
 
 
 

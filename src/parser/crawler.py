@@ -2,10 +2,22 @@ import logging
 import scrapy
 import subprocess
 import os
+from scrapy.crawler import CrawlerProcess
+from parser.spiders.articles import ArticlesSpider
+from parser.spiders.authors import AuthorsSpider
 
 def reading():
     # read the data from blog
-    os.system("./scrapy-spider.sh")
+    # os.system("./scrapy-spider.sh")
+
+    spiders = [ArticlesSpider, AuthorsSpider]
+    crawler = CrawlerProcess()
+
+    for spider in spiders:
+        crawler.crawl(spider) #, start_urls=[url])
+    crawler.start()
+
+
 
 
 def crawler(last_date):

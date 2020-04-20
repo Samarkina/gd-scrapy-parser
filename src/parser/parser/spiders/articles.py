@@ -30,9 +30,9 @@ class ArticlesSpider(scrapy.Spider):
         urls = func.do_urls(references + topReferences)
 
         for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse_article)
+            yield scrapy.Request(url=url, callback=self.parse_articles)
 
-    def parse_article(self, response):
+    def parse_articles(self, response):
         title = response.css('h2.mb30::text').get() # 1
         url = response.css('link[rel*=canonical]::attr(href)').get() # 2
         firstSymbols = response.css('.container p::text').get()[0:160] # 3
@@ -40,5 +40,7 @@ class ArticlesSpider(scrapy.Spider):
         authorName = response.css('.name::text').get().strip() # 5
         tags = response.css('meta[property*=\'article:tag\']::attr(content)').getall() # 6
 
-        return {"title": title, "url": url, "firstSymbols": firstSymbols, "date": date, "authorName": authorName,
-                     "tags": tags}
+        data = {"title": title, "url": url, "firstSymbols": firstSymbols, "date": date, "authorName": authorName,
+                "tags": tags}
+
+        func.upload_data(self, "articles", data)
