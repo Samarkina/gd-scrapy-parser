@@ -43,4 +43,4 @@ class ArticlesSpider(scrapy.Spider):
         data = {"title": title, "url": url, "firstSymbols": firstSymbols, "date": date, "authorName": authorName,
                 "tags": tags}
 
-        func.upload_data(self, "articles", data)
+        func.upload_data(self, "articles_temp", data)
