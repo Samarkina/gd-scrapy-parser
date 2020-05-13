@@ -1,12 +1,9 @@
 import logging
-import scrapy
-import subprocess
-import os
 from scrapy.crawler import CrawlerProcess
-from parser.spiders.articles import ArticlesSpider
-from parser.spiders.authors import AuthorsSpider
-import parser.spiders.common.functions as func
+import src.parser.functions as func
 import datetime
+from src.parser.parser.spiders.articles import ArticlesSpider
+from src.parser.parser.spiders.authors import AuthorsSpider
 
 def reading():
     # read the data from blog
@@ -50,11 +47,8 @@ def get_last_db_date(fullFilename):
     logging.info('Last date is %s in json-DB', lastDate)
     return lastDate
 
-def isExistArticle(article):
+def isExistArticle(article, fullFilenameDB):
     # checking exist article in DB or not
-    filename = "articles"
-    fullFilenameDB = "./resources/" + filename + ".json"
-
     data = func.json_reader(fullFilenameDB)
 
     if article in data:
@@ -66,12 +60,15 @@ def isExistArticle(article):
 def count_delta(fullFilenameSite, lastSiteDate, lastDBDate):
     logging.info('Counting the delta from the site and the database')
     newData = []
+    filename = "articles"
+    fullFilenameDB = "./src/parser/resources/" + filename + ".json"
+
     if (lastSiteDate >= lastDBDate):
 
         data = func.json_reader(fullFilenameSite)
 
         for article in data:
-            if article['date'] >= lastDBDate and isExistArticle(article):
+            if article['date'] >= lastDBDate and isExistArticle(article, fullFilenameDB):
                     newData.append(article)
     if not newData:
         logging.info('Site has NO new articles')
@@ -82,7 +79,7 @@ def count_delta(fullFilenameSite, lastSiteDate, lastDBDate):
 def upload_new_data(newData):
     # upload new data to DB
     filename = "articles"
-    fullFilenameDB = "./resources/" + filename + ".json"
+    fullFilenameDB = "./src/parser/resources/" + filename + ".json"
 
     data = func.json_reader(fullFilenameDB)
 
@@ -97,13 +94,13 @@ def upload_new_data(newData):
 
 def check_data():
     filename = "articles"
-    fullFilenameDB = "./resources/" + filename + ".json"
+    fullFilenameDB = "./src/parser/resources/" + filename + ".json"
 
     logging.info('Check the data from json-DB')
     lastDBDate = get_last_db_date(fullFilenameDB)
 
     logging.info('Check the new data from site')
-    fullFilenameSite = "./resources/temp/" + filename + "_temp.json"
+    fullFilenameSite = "./src/parser/resources/temp/" + filename + "_temp.json"
     lastSiteDate = get_last_db_date(fullFilenameSite)
 
 

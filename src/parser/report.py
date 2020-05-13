@@ -1,9 +1,6 @@
-import crawler
-import pandas
-import matplotlib
-import subprocess
+import src.parser.crawler as crawler
 import logging
-
+import os
 
 
 if __name__ == "__main__":

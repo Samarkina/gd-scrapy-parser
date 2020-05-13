@@ -21,7 +21,7 @@ def json_writer(fullFilename, data):
     logging.info('File %s was updated' % fullFilename)
 
 def upload_data(self, filename, data):
-    fullFilename = "./resources/temp/" + filename + ".json"
+    fullFilename = "./src/parser/resources/temp/" + filename + ".json"
     filesize = os.path.getsize(fullFilename)
     self.log('%s file size is %d' % (fullFilename, filesize))
 

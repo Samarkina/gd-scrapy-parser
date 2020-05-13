@@ -2,7 +2,7 @@
 Parse GridDynamics Blog with Scrapy and visualize it
 
 ### Run the project
-`python3 report.py`
+`python3 src/parser/report.py`
 
 
 ### Description of the project

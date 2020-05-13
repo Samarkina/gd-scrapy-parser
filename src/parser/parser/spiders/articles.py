@@ -1,6 +1,6 @@
 import scrapy
 import re
-import parser.spiders.common.functions as func
+import src.parser.functions as func
 
 class ArticlesSpider(scrapy.Spider):
     name = "articles"
