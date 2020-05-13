@@ -35,7 +35,7 @@ def upload_data(self, filename, data):
         self.log('%s file is empty ' % fullFilename)
         oldData = []
     oldData.append(data)
-    json_writer(self, fullFilename, oldData)
+    json_writer(fullFilename, oldData)
 
 def reverse_file(filename):
     fullFilename = filename + ".json"

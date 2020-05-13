@@ -41,6 +41,8 @@ def sort_json_by_date(fullFilename):
 
 def get_last_db_date(fullFilename):
     # get_last_db_date in db json file
+    sort_json_by_date(fullFilename)
+
     articlesJson = func.json_reader(fullFilename)
     lastDate = extract_date(articlesJson[len(articlesJson) - 1])
 
@@ -48,19 +50,78 @@ def get_last_db_date(fullFilename):
     logging.info('Last date is %s in json-DB', lastDate)
     return lastDate
 
+def isExistArticle(article):
+    # checking exist article in DB or not
+    filename = "articles"
+    fullFilenameDB = "./resources/" + filename + ".json"
+
+    data = func.json_reader(fullFilenameDB)
+
+    if article in data:
+        return True
+    else:
+        return False
+
+
+def count_delta(fullFilenameSite, lastSiteDate, lastDBDate):
+    logging.info('Counting the delta from the site and the database')
+    newData = []
+    if (lastSiteDate >= lastDBDate):
+
+        data = func.json_reader(fullFilenameSite)
+
+        for article in data:
+            if article['date'] >= lastDBDate and isExistArticle(article):
+                    newData.append(article)
+    if not newData:
+        logging.info('Site has NO new articles')
+    else:
+        logging.info('Site has new articles')
+        return newData
+
+def upload_new_data(newData):
+    # upload new data to DB
+    filename = "articles"
+    fullFilenameDB = "./resources/" + filename + ".json"
+
+    data = func.json_reader(fullFilenameDB)
+
+    # TODO : upload
+
+
+
+
+
+
+
 
 def check_data():
     filename = "articles"
-    fullFilename = "./resources/" + filename + ".json"
+    fullFilenameDB = "./resources/" + filename + ".json"
 
     logging.info('Check the data from json-DB')
-
-    sort_json_by_date(fullFilename)
-    lastDBDate = get_last_db_date(fullFilename)
+    lastDBDate = get_last_db_date(fullFilenameDB)
 
     logging.info('Check the new data from site')
+    fullFilenameSite = "./resources/temp/" + filename + "_temp.json"
+    lastSiteDate = get_last_db_date(fullFilenameSite)
 
-    # TODO : check the data from the site
+
+    # TODO : count the delta
+
+    # вычислить дельту в данных сайта и данных, которые есть в DB. Upload данные дельты в DB.
+    # На всякий случай чекать, есть ли уже эта запись в DB.
+    # И в этот момент проверить, точно ли нет такого автора. И если нет, то добавить и его
+
+    newData = count_delta(fullFilenameSite, lastSiteDate, lastDBDate)
+
+    upload_new_data(newData)
+
+    logging.info('Upload the delta from the site to the database')
+
+    logging.info('Check exist this author in database')
+
+    logging.info('Upload the author in database')
 
 
 
@@ -105,7 +166,7 @@ def main():
     # posts = crawler(last_date)
 
     logging.info('********* STEP 1. Read the data from the site *********')
-    # reading()
+    reading()
 
 
 
