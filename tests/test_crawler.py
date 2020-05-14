@@ -73,14 +73,14 @@ class CrawlerTest(unittest.TestCase):
         print("New articles doesn't found")
 
 
-    def test_upload_new_articles_to_DB(self):
+    def test_upload_new_data_to_DB(self):
         newDataFile = "./resources/delta2NewRecord.json"
         fullFilenameDB = "./resources/articles.json"
 
         newDB = "./resources/articlesWithDelta2Records.json"
         with open(newDataFile) as outfile:
             newData = json.load(outfile)
-            crawler.upload_new_articles_to_DB(newData, fullFilenameDB)
+            crawler.upload_new_data_to_DB(newData, fullFilenameDB)
             # function is rewriting fullFilenameDB file
 
             with open(newDB) as newDBfile:
