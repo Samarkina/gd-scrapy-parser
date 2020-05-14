@@ -19,4 +19,4 @@ if __name__ == "__main__":
     # TODO : do report
 
     logging.info('********* STEP 7. Upload the report to the json-DB *********')
-    # TODO : write to SQL
+    # TODO

@@ -64,93 +64,47 @@ def get_new_data(fullFilenameSite, fullFilenameDB):
         return None
     else:
         logging.info('Site has new articles')
-        return sort_json_by_date(newData)
-
-def upload_new_articles_to_DB(newData, fullFilenameDB):
-    # upload new data to DB
-    sort_and_rewrite_json_file(fullFilenameDB)
-    data = func.json_reader(fullFilenameDB)
-
-    for row in newData:
-        data.append(row)
-
-    sortedData = sort_json_by_date(data)
-    func.json_writer(fullFilenameDB, sortedData)
-    logging.info('New articles was uploaded in database')
-
-def upload_new_authors_to_DB(newData, fullFilenameDB):
-    # TODO
-    logging.info('Check exist this author in database')
-
-    print("13")
-
-    logging.info('Upload the author in database')
-
-
-
-
-
+        return newData
 
 def upload_new_data_to_DB(newData, fullFilenameDB):
-    logging.info('Upload the delta from the site to the database')
-
-    # TODO : count the delta
-
-    # вычислить дельту в данных сайта и данных, которые есть в DB. Upload данные дельты в DB.
-    # На всякий случай чекать, есть ли уже эта запись в DB.
-
-    upload_new_articles_to_DB(newData, fullFilenameDB)
-
-    # И в этот момент проверить, точно ли нет такого автора. И если нет, то добавить и его
-
-    upload_new_authors_to_DB(newData, fullFilenameDB)
-
-def crawler(last_date):
-    # check new articles
-
-    # a) If there are no new posts, log in console says there are no new
-    # blog posts since the last date.
-
-    # b) If there are new posts write them to data (file/db) and for each author
-    # - update information (articles counter, or add new author if not exist).
-    # Only for authors of this posts.
-
-
-
-    # last blog post date must be extracted.
-
-    # start parsing data from Blog.
-    print("123www")
-
-    # Crawler needs to append only new data that’s older than the most recent blog-post date.
-
-    # if posts is newer than last_date-post, then return to report.py
-    # while пока reading
-
-    #return your data to report.py
-
-
-
-
-    # return data
-
-
-
-
+    # upload new data to DB
+    data = func.json_reader(fullFilenameDB)
+    if not newData:
+        logging.info('All data is updated already')
+        return
+    else:
+        for row in newData:
+            data.append(row)
+        sortedData = sort_json_by_date(data)
+        func.json_writer(fullFilenameDB, sortedData)
 
 
 def main():
-    filename = "articles"
-    fullFilenameDB = "./src/parser/resources/" + filename + ".json"
-    fullFilenameSite = "./src/parser/resources/temp/" + filename + "_temp.json"
+    filenameArt = "articles"
+    fullFilenameDBArt = "./src/parser/resources/" + filenameArt + ".json"
+    fullFilenameSiteArt = "./src/parser/resources/temp/" + filenameArt + "_temp.json"
+
+    filenameAuth = "authors"
+    fullFilenameDBAuth = "./src/parser/resources/" + filenameAuth + ".json"
+    fullFilenameSiteAuth = "./src/parser/resources/temp/" + filenameAuth + "_temp.json"
 
     logging.info('********* STEP 3. Read the data from the site *********')
     reading()
 
     logging.info('********* STEP 4. Check new data *********')
-    newData = get_new_data(fullFilenameSite, fullFilenameDB)
+    newDataArt = get_new_data(fullFilenameSiteArt, fullFilenameDBArt)
+    logging.info('New articles was found')
+
+    newDataAuth = get_new_data(fullFilenameSiteAuth, fullFilenameDBAuth)
+    logging.info('New authors was found')
 
     logging.info('********* STEP 5. Upload the new data to json-DB *********')
-    upload_new_data_to_DB(newData, fullFilenameDB)
+
+    upload_new_data_to_DB(newDataArt, fullFilenameDBArt)
+    sort_and_rewrite_json_file(fullFilenameDBArt)
+    logging.info('New articles was uploaded in database')
+
+    upload_new_data_to_DB(newDataAuth, fullFilenameDBAuth)
+    logging.info('New authors was uploaded in database')
 
     return 0
