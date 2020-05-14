@@ -4,6 +4,14 @@ import src.parser.crawler as crawler
 
 class CrawlerTest(unittest.TestCase):
 
+    def setUp(self):
+        dbFileTemplate = "./resources/template/articles_template.json"
+        dbFile = "./resources/articles.json"
+        with open(dbFileTemplate) as templateFile:
+            dataTemplate = json.load(templateFile)
+            with open(dbFile, "w") as articlesFile:
+                json.dump(dataTemplate, articlesFile)
+
     def test_date_convert(self):
         result = crawler.date_convert("May 12 2020")
         self.assertEqual(result, "2020/05/12")
@@ -38,11 +46,11 @@ class CrawlerTest(unittest.TestCase):
             self.assertEqual(result, True)
             print("%s article exist in %s file" % (articleFile, dbFile))
 
-    def test_count_delta(self):
+    def test_get_new_data(self):
         fullFilenameSite = "./resources/articlesSiteFile.json" # with new article
         fullFilenameDB = "./resources/articles.json"
         deltaBetweenArticlesAndArticlesSiteFile = "./resources/delta.json"
-        result = crawler.count_delta(fullFilenameSite, fullFilenameDB)
+        result = crawler.get_new_data(fullFilenameSite, fullFilenameDB)
         with open(deltaBetweenArticlesAndArticlesSiteFile) as outfile:
             delta = json.load(outfile)
             self.assertEqual(result, delta)
@@ -52,7 +60,7 @@ class CrawlerTest(unittest.TestCase):
         fullFilenameSite = "./resources/articlesSiteFile2NewRecord.json" # with 2 new article
         fullFilenameDB = "./resources/articles.json"
         deltaBetweenArticlesAndArticlesSiteFile = "./resources/delta2NewRecord.json"
-        result = crawler.count_delta(fullFilenameSite, fullFilenameDB)
+        result = crawler.get_new_data(fullFilenameSite, fullFilenameDB)
         with open(deltaBetweenArticlesAndArticlesSiteFile) as outfile:
             delta = json.load(outfile)
             self.assertEqual(result, delta)
@@ -60,8 +68,32 @@ class CrawlerTest(unittest.TestCase):
 
     def test_count_delta_no_one_record(self):
         fullFilenameDB = "./resources/articles.json"
-        result = crawler.count_delta(fullFilenameDB, fullFilenameDB)
+        result = crawler.get_new_data(fullFilenameDB, fullFilenameDB)
         self.assertEqual(result, None)
         print("New articles doesn't found")
+
+
+    def test_upload_new_articles_to_DB(self):
+        newDataFile = "./resources/delta2NewRecord.json"
+        fullFilenameDB = "./resources/articles.json"
+
+        newDB = "./resources/articlesWithDelta2Records.json"
+        with open(newDataFile) as outfile:
+            newData = json.load(outfile)
+            crawler.upload_new_articles_to_DB(newData, fullFilenameDB)
+            # function is rewriting fullFilenameDB file
+
+            with open(newDB) as newDBfile:
+                dataNewDB = json.load(newDBfile)
+
+                with open(fullFilenameDB) as fullFilenameDBFile:
+                    dataDB = json.load(fullFilenameDBFile)
+                    self.assertEqual(dataDB, dataNewDB)
+                    print("New data was uploaded successfully")
+
+
+
+
+
 
 

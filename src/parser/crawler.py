@@ -51,7 +51,7 @@ def isExistArticle(article, fullFilenameDB):
         return False
 
 
-def count_delta(fullFilenameSite, fullFilenameDB):
+def get_new_data(fullFilenameSite, fullFilenameDB):
     logging.info('Counting the delta from the site and the database')
     newData = []
 
@@ -67,43 +67,44 @@ def count_delta(fullFilenameSite, fullFilenameDB):
         logging.info('Site has new articles')
         return sort_json_by_date(newData)
 
-def upload_new_data(newData):
+def upload_new_articles_to_DB(newData, fullFilenameDB):
     # upload new data to DB
-    filename = "articles"
-    fullFilenameDB = "./src/parser/resources/" + filename + ".json"
-
     sort_and_rewrite_json_file(fullFilenameDB)
-
     data = func.json_reader(fullFilenameDB)
 
-    # TODO : upload
+    for row in newData:
+        data.append(row)
+
+    sortedData = sort_json_by_date(data)
+    func.json_writer(fullFilenameDB, sortedData)
+    logging.info('New articles was uploaded in database')
+
+def upload_new_authors_to_DB(newData, fullFilenameDB):
+    # TODO
+    logging.info('Check exist this author in database')
+
+    print("13")
+
+    logging.info('Upload the author in database')
 
 
 
 
 
-def check_data():
-    filename = "articles"
-    fullFilenameDB = "./src/parser/resources/" + filename + ".json"
-    fullFilenameSite = "./src/parser/resources/temp/" + filename + "_temp.json"
+
+def upload_new_data_to_DB(newData, fullFilenameDB):
+    logging.info('Upload the delta from the site to the database')
 
     # TODO : count the delta
 
     # вычислить дельту в данных сайта и данных, которые есть в DB. Upload данные дельты в DB.
     # На всякий случай чекать, есть ли уже эта запись в DB.
+
+    upload_new_articles_to_DB(newData, fullFilenameDB)
+
     # И в этот момент проверить, точно ли нет такого автора. И если нет, то добавить и его
 
-    newData = count_delta(fullFilenameSite, fullFilenameDB)
-
-    upload_new_data(newData)
-
-    logging.info('Upload the delta from the site to the database')
-
-    logging.info('Check exist this author in database')
-
-    logging.info('Upload the author in database')
-
-
+    upload_new_authors_to_DB(newData, fullFilenameDB)
 
 def crawler(last_date):
     # check new articles
@@ -140,20 +141,17 @@ def crawler(last_date):
 
 
 def main():
-    # last_date = get_last_date() # return the last date of publish
-    #
-    #
-    # posts = crawler(last_date)
+    filename = "articles"
+    fullFilenameDB = "./src/parser/resources/" + filename + ".json"
+    fullFilenameSite = "./src/parser/resources/temp/" + filename + "_temp.json"
 
     logging.info('********* STEP 1. Read the data from the site *********')
     reading()
 
-
-
     logging.info('********* STEP 2. Check new data *********')
-    check_data()
-
+    newData = get_new_data(fullFilenameSite, fullFilenameDB)
 
     logging.info('********* STEP 3. Upload the new data to json-DB *********')
+    upload_new_data_to_DB(newData, fullFilenameDB)
 
     return 0
