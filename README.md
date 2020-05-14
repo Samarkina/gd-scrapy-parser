@@ -33,3 +33,13 @@ Extract to storage:
 2) Job Title
 3) Linked-in url to user profile
 4) Counter with articles
+
+
+#### In report:
+
+1) Top-5 Authors (based on articles counter)
+2) Top-5 New Articles (based on publish data)
+3) Plot with counts of 7 popular tags:
+    - it must be a bar chart (column plot) where each column is for one tag
+    - Tag bar must have name in plot.
+    - X-axis - counter with articles of tag theme
