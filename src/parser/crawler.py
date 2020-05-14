@@ -2,14 +2,14 @@ import logging
 from scrapy.crawler import CrawlerProcess
 import src.parser.functions as func
 import datetime
-from src.parser.parser.spiders.articles import ArticlesSpider
-from src.parser.parser.spiders.authors import AuthorsSpider
+import src.parser.parser.spiders.articles as articles
+import src.parser.parser.spiders.authors as authors
 
 def reading():
     # read the data from blog
     # os.system("./scrapy-spider.sh")
 
-    spiders = [ArticlesSpider, AuthorsSpider]
+    spiders = [articles.ArticlesSpider, authors.AuthorsSpider]
     crawler = CrawlerProcess()
 
     for spider in spiders:
@@ -27,25 +27,19 @@ def extract_date(json):
     except KeyError:
         return 0
 
-def sort_json_by_date(fullFilename):
+def sort_json_by_date(articlesJson):
     # sort json file by date
     # needs sort just articles
-    articlesJson = func.json_reader(fullFilename)
+    logging.info("Json file is sorting")
     articlesJson.sort(key=extract_date, reverse=False)
+    return articlesJson
 
-    logging.info('%s file was sorted by date', fullFilename)
-    func.json_writer(fullFilename, articlesJson)
-
-def get_last_db_date(fullFilename):
-    # get_last_db_date in db json file
-    sort_json_by_date(fullFilename)
-
+def sort_and_rewrite_json_file(fullFilename):
     articlesJson = func.json_reader(fullFilename)
-    lastDate = extract_date(articlesJson[len(articlesJson) - 1])
+    sortedData = sort_json_by_date(articlesJson)
+    logging.info('%s file was sorted by date' % fullFilename)
 
-    logging.info('Last date was found')
-    logging.info('Last date is %s in json-DB', lastDate)
-    return lastDate
+    func.json_writer(fullFilename, sortedData)
 
 def isExistArticle(article, fullFilenameDB):
     # checking exist article in DB or not
@@ -57,29 +51,28 @@ def isExistArticle(article, fullFilenameDB):
         return False
 
 
-def count_delta(fullFilenameSite, lastSiteDate, lastDBDate):
+def count_delta(fullFilenameSite, fullFilenameDB):
     logging.info('Counting the delta from the site and the database')
     newData = []
-    filename = "articles"
-    fullFilenameDB = "./src/parser/resources/" + filename + ".json"
 
-    if (lastSiteDate >= lastDBDate):
+    data = func.json_reader(fullFilenameSite)
 
-        data = func.json_reader(fullFilenameSite)
-
-        for article in data:
-            if article['date'] >= lastDBDate and isExistArticle(article, fullFilenameDB):
-                    newData.append(article)
+    for article  in data:
+        if not isExistArticle(article, fullFilenameDB):
+            newData.append(article)
     if not newData:
         logging.info('Site has NO new articles')
+        return None
     else:
         logging.info('Site has new articles')
-        return newData
+        return sort_json_by_date(newData)
 
 def upload_new_data(newData):
     # upload new data to DB
     filename = "articles"
     fullFilenameDB = "./src/parser/resources/" + filename + ".json"
+
+    sort_and_rewrite_json_file(fullFilenameDB)
 
     data = func.json_reader(fullFilenameDB)
 
@@ -89,20 +82,10 @@ def upload_new_data(newData):
 
 
 
-
-
-
 def check_data():
     filename = "articles"
     fullFilenameDB = "./src/parser/resources/" + filename + ".json"
-
-    logging.info('Check the data from json-DB')
-    lastDBDate = get_last_db_date(fullFilenameDB)
-
-    logging.info('Check the new data from site')
     fullFilenameSite = "./src/parser/resources/temp/" + filename + "_temp.json"
-    lastSiteDate = get_last_db_date(fullFilenameSite)
-
 
     # TODO : count the delta
 
@@ -110,7 +93,7 @@ def check_data():
     # На всякий случай чекать, есть ли уже эта запись в DB.
     # И в этот момент проверить, точно ли нет такого автора. И если нет, то добавить и его
 
-    newData = count_delta(fullFilenameSite, lastSiteDate, lastDBDate)
+    newData = count_delta(fullFilenameSite, fullFilenameDB)
 
     upload_new_data(newData)
 
