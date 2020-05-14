@@ -6,12 +6,8 @@ import src.parser.parser.spiders.articles as articles
 import src.parser.parser.spiders.authors as authors
 
 def reading():
-    # read the data from blog
-    # os.system("./scrapy-spider.sh")
-
     spiders = [articles.ArticlesSpider, authors.AuthorsSpider]
     crawler = CrawlerProcess()
-
     for spider in spiders:
         crawler.crawl(spider)
     crawler.start()
@@ -44,7 +40,6 @@ def sort_and_rewrite_json_file(fullFilename):
 def isExistArticle(article, fullFilenameDB):
     # checking exist article in DB or not
     data = func.json_reader(fullFilenameDB)
-
     if article in data:
         return True
     else:
@@ -53,9 +48,7 @@ def isExistArticle(article, fullFilenameDB):
 def get_new_data(fullFilenameSite, fullFilenameDB):
     logging.info('Counting the delta from the site and the database')
     newData = []
-
     data = func.json_reader(fullFilenameSite)
-
     for article  in data:
         if not isExistArticle(article, fullFilenameDB):
             newData.append(article)
@@ -78,8 +71,7 @@ def upload_new_data_to_DB(newData, fullFilenameDB):
         sortedData = sort_json_by_date(data)
         func.json_writer(fullFilenameDB, sortedData)
 
-
-def main():
+def do_crawler():
     filenameArt = "articles"
     fullFilenameDBArt = "./src/parser/resources/" + filenameArt + ".json"
     fullFilenameSiteArt = "./src/parser/resources/temp/" + filenameArt + "_temp.json"

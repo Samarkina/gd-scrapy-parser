@@ -4,16 +4,12 @@ import os
 import database
 
 if __name__ == "__main__":
-    # subprocess.call(crawler.main())
     logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
-
     logging.info('********* STEP 0. Program is starting... *********')
-
     database.create_database()
 
     logging.info('********* STEP 2. Start crawling... *********')
-
-    crawler.main()
+    crawler.do_crawler()
 
     logging.info('********* STEP 6. Do the report *********')
     # TODO : do report
