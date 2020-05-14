@@ -50,7 +50,6 @@ def isExistArticle(article, fullFilenameDB):
     else:
         return False
 
-
 def get_new_data(fullFilenameSite, fullFilenameDB):
     logging.info('Counting the delta from the site and the database')
     newData = []
@@ -145,13 +144,13 @@ def main():
     fullFilenameDB = "./src/parser/resources/" + filename + ".json"
     fullFilenameSite = "./src/parser/resources/temp/" + filename + "_temp.json"
 
-    logging.info('********* STEP 1. Read the data from the site *********')
+    logging.info('********* STEP 3. Read the data from the site *********')
     reading()
 
-    logging.info('********* STEP 2. Check new data *********')
+    logging.info('********* STEP 4. Check new data *********')
     newData = get_new_data(fullFilenameSite, fullFilenameDB)
 
-    logging.info('********* STEP 3. Upload the new data to json-DB *********')
+    logging.info('********* STEP 5. Upload the new data to json-DB *********')
     upload_new_data_to_DB(newData, fullFilenameDB)
 
     return 0

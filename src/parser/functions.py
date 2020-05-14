@@ -12,8 +12,11 @@ def do_urls(references):
     return urls
 
 def json_reader(fullFilename):
-    with open(fullFilename) as outfile:
-        return json.load(outfile)
+    if os.stat(fullFilename).st_size == 0:
+        return []
+    else:
+        with open(fullFilename) as outfile:
+            return json.load(outfile)
 
 def json_writer(fullFilename, data):
     with open(fullFilename, "w") as outfile:
