@@ -1,11 +1,15 @@
-# GD_Scrapy_parser
-Parse GridDynamics Blog with Scrapy and visualize it
+# GD Scrapy parser
 
-### Run the project
-`python3 src/parser/report.py`
+This project is a parser for GridDynamics blog and it creates a report which contains following bullets:
+- Top-5 Authors,
+- Top-5 New Articles,
+- Plot with articles counter of 7 most popular tags
 
+Crawler is based on Scrapy, with items to load data to storage.
+Storage is implemented as JSON file and stored in `<project-dir>/src/parser/resources`.
+Main script with report generator is `<project-dir>/src/parser/report.py`.
 
-### Description of the project
+### Storage contains:
 
 #### Articles (blog post):
 
@@ -43,3 +47,16 @@ Extract to storage:
     - it must be a bar chart (column plot) where each column is for one tag
     - Tag bar must have name in plot.
     - X-axis - counter with articles of tag theme
+
+## Tests:
+![tests](https://github.com/Samarkina/GD_Scrapy_parser/blob/master/tests.png?raw=true)
+
+
+## Installation
+Project requires [pip3](https://pypi.org/project/pip/) and [python3](https://www.python.org/downloads/) installation.
+Python 3.7.3 version is preferable.
+1. `git clone git@github.com:Samarkina/GD_Scrapy_parser.git`
+2. `pip3 install -r requirements.txt`
+
+## Run the project
+`python3 src/parser/report.py`

@@ -1,9 +1,7 @@
 import src.parser.crawler as crawler
 import logging
-import os
 import database
 import pandas as pd
-import numpy as np
 import functions as func
 import matplotlib.pyplot as plt
 import json
