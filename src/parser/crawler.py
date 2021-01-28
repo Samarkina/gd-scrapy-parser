@@ -4,6 +4,8 @@ import src.parser.functions as func
 import datetime
 import src.parser.parser.spiders.articles as articles
 import src.parser.parser.spiders.authors as authors
+import src.parser.vars as vars
+
 
 def reading():
     """Reads all the site pages and writes in the temp file in
@@ -17,6 +19,7 @@ def reading():
     crawler.start()
     logging.info('All the site data was writting in JSON files in resource directory')
 
+
 def date_convert(date):
     """Converting date to another format
     ex. May 12 2020 to 2020/05/12
@@ -27,6 +30,7 @@ def date_convert(date):
 
     newDate = datetime.datetime.strptime(date, '%b %d %Y').strftime('%Y/%m/%d')
     return newDate
+
 
 def extract_date(json):
     """ extracting date from json
@@ -40,6 +44,7 @@ def extract_date(json):
     except KeyError:
         return 0
 
+
 def sort_json_by_date(articlesJson):
     """Sort json file by date
     needs sort just articles
@@ -51,6 +56,7 @@ def sort_json_by_date(articlesJson):
     logging.info("Json file is sorting")
     articlesJson.sort(key=extract_date, reverse=False)
     return articlesJson
+
 
 def sort_and_rewrite_json_file(fullFilename):
     """Sorting data by date and rewrite the json file
@@ -64,6 +70,7 @@ def sort_and_rewrite_json_file(fullFilename):
 
     func.json_writer(fullFilename, sortedData)
 
+
 def isExistArticle(article, fullFilenameDB):
     """Сhecking for an article in DB file
 
@@ -75,70 +82,65 @@ def isExistArticle(article, fullFilenameDB):
     data = func.json_reader(fullFilenameDB)
     return article in data
 
-def get_new_data(fullFilenameSite, fullFilenameDB):
+
+def get_new_data(full_filename_site, full_filename_db):
     """geting new data from site, which is not in the database
 
-    :param fullFilenameSite: full path filename to Site file
-    :param fullFilenameDB: path filename to DB file
+    :param full_filename_site: full path filename to Site file
+    :param full_filename_db: path filename to DB file
     :return: new data from site
     """
 
     logging.info('Counting the delta from the site and the database')
-    newData = []
-    data = func.json_reader(fullFilenameSite)
-    for article  in data:
-        if not isExistArticle(article, fullFilenameDB):
-            newData.append(article)
-    if not newData:
+    new_data = []
+    data = func.json_reader(full_filename_site)
+    for article in data:
+        if not isExistArticle(article, full_filename_db):
+            new_data.append(article)
+    if not new_data:
         logging.info('Site has NO new articles')
         return None
     else:
         logging.info('Site has new articles')
-        return newData
+        return new_data
 
-def upload_new_data_to_DB(newData, fullFilenameDB):
+
+def upload_new_data_to_DB(new_data, full_filename_db):
     """upload new data to DB
 
     :param newData: data for upload
     :param fullFilenameDB: path filename to DB file
     """
 
-    data = func.json_reader(fullFilenameDB)
-    if newData:
-        for row in newData:
+    data = func.json_reader(full_filename_db)
+    if new_data:
+        for row in new_data:
             data.append(row)
-        sortedData = sort_json_by_date(data)
-        func.json_writer(fullFilenameDB, sortedData)
+        sorted_data = sort_json_by_date(data)
+        func.json_writer(full_filename_db, sorted_data)
     else:
         logging.info('All data is updated already')
+
 
 def do_crawler():
     """main function for crawling
     """
 
-    filenameArt = "articles"
-    fullFilenameDBArt = "./src/parser/resources/" + filenameArt + ".json"
-    fullFilenameSiteArt = "./src/parser/resources/temp/" + filenameArt + "_temp.json"
-
-    filenameAuth = "authors"
-    fullFilenameDBAuth = "./src/parser/resources/" + filenameAuth + ".json"
-    fullFilenameSiteAuth = "./src/parser/resources/temp/" + filenameAuth + "_temp.json"
-
     logging.info('********* STEP 3. Read the data from the site *********')
     reading()
 
     logging.info('********* STEP 4. Check new data *********')
-    newDataArt = get_new_data(fullFilenameSiteArt, fullFilenameDBArt)
+    new_data_art = get_new_data(vars.FULL_FILENAME_TEMP_ART, vars.FULL_FILENAME_DB_ART)
     logging.info('New articles was found')
 
-    newDataAuth = get_new_data(fullFilenameSiteAuth, fullFilenameDBAuth)
+    new_data_auth = get_new_data(vars.FULL_FILENAME_TEMP_AUTH, vars.FULL_FILENAME_DB_AUTH)
     logging.info('New authors was found')
 
     logging.info('********* STEP 5. Upload the new data to json-DB *********')
 
-    upload_new_data_to_DB(newDataArt, fullFilenameDBArt)
-    sort_and_rewrite_json_file(fullFilenameDBArt)
+    upload_new_data_to_DB(new_data_art, vars.FULL_FILENAME_DB_ART)
+    sort_and_rewrite_json_file(vars.FULL_FILENAME_DB_ART)
     logging.info('New articles was uploaded in database')
 
-    upload_new_data_to_DB(newDataAuth, fullFilenameDBAuth)
+    upload_new_data_to_DB(new_data_auth, vars.FULL_FILENAME_DB_AUTH)
     logging.info('New authors was uploaded in database')

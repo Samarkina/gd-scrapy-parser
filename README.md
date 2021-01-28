@@ -49,13 +49,13 @@ Extract to storage:
     - X-axis - counter with articles of tag theme
 
 ## Tests:
-![tests](https://github.com/Samarkina/GD_Scrapy_parser/blob/master/tests.png?raw=true)
+![tests](https://github.com/Samarkina/gd-scrapy-parser/blob/master/tests.png?raw=true)
 
 
 ## Installation
 Project requires [pip3](https://pypi.org/project/pip/) and [python3](https://www.python.org/downloads/) installation.
 Python 3.7.3 version is preferable.
-1. `git clone git@github.com:Samarkina/GD_Scrapy_parser.git`
+1. `git clone git@github.com:Samarkina/gd-scrapy-parser.git`
 2. `pip3 install -r requirements.txt`
 
 ## Run the project
