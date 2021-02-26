@@ -59,7 +59,7 @@ You can run the tests with following command:
 ## Installation
 Project requires [pip3](https://pypi.org/project/pip/) and [python3](https://www.python.org/downloads/) installation.
 Python 3.9.1 version is preferable.
-1. `git clone git@github.com:gridu/PYTHON-esamarkina.git`
+1. `git clone git@github.com:Samarkina/gd-scrapy-parser.git`
 2. `pip3 install -r requirements.txt`
 
 Also, you can use [virtual env](https://docs.python.org/3/tutorial/venv.html)
