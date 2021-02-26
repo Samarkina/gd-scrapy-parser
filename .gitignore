@@ -3,11 +3,10 @@
 
 # Other
 .DS_Store
-/src/parser/resources/
+resources/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
-__init__.py
 *.py[cod]
 *$py.class
 

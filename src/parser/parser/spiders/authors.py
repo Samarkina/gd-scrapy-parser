@@ -1,20 +1,23 @@
 import scrapy
-import src.parser.functions as func
+import functions as func
+import parser.items as items
 
 
 class AuthorsSpider(scrapy.Spider):
     name = "authors"
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "parser.pipelines.AuthorsPipeline": 300,
+        }
+    }
 
     def start_requests(self):
         """Start the parsing
 
         :return:
         """
-        urls = [
-            "https://blog.griddynamics.com/all-authors/"
-        ]
-        for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse)
+        url = "https://blog.griddynamics.com/all-authors/"
+        yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
         """Parsing author urls
@@ -40,5 +43,10 @@ class AuthorsSpider(scrapy.Spider):
         linkedIn = response.css('.authorcard.popup .socicon.li a[href]::attr(href)').extract()  # 3
         counter_articles = len(response.css('.authorcard.popup .postsrow a[href]::attr(href)').extract())  # 4
 
-        data = {"name": name, "jobTitle": job_title, "linkedIn": linkedIn, "counterArticles": counter_articles}
-        func.upload_data(self, "authors_temp", data)
+        data = items.AuthorItem()
+        data['name'] = name
+        data['jobTitle'] = job_title
+        data['linkedIn'] = linkedIn
+        data['counterArticles'] = counter_articles
+
+        yield data

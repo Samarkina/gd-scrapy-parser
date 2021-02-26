@@ -1,7 +1,7 @@
 import json
 import os
 import logging
-import src.parser.vars as vars
+import vars as vars
 
 
 def do_urls(references):
@@ -16,6 +16,25 @@ def do_urls(references):
         urls.append(url + ref)
 
     return urls
+
+
+def get_new_urls(site_urls):
+    """getting only new urls that have never been in the database
+
+    :param site_urls: urls from site
+    :return: new urls from site (they are not in database)
+    """
+    db_urls = []
+    data_db_articles = json_reader(vars.FULL_FILENAME_DB_ART)
+    for article in data_db_articles:
+        db_urls.append(article["url"])
+
+    new_urls = []
+    for site_url in site_urls:
+        if site_url not in db_urls:
+            new_urls.append(site_url)
+
+    return new_urls
 
 
 def json_reader(full_filename):
@@ -42,28 +61,3 @@ def json_writer(full_filename, data):
     with open(full_filename, "w") as outfile:
         json.dump(data, outfile)
     logging.info('File {} was updated'.format(full_filename))
-
-
-def upload_data(self, filename, data):
-    """uploading data into temp file during crawling
-
-    :param self:
-    :param filename: filename for uploading
-    :param data: data for uploading
-    """
-
-    full_filename = vars.RESOURCE_TEMP_PATH.format(filename)
-    filesize = os.path.getsize(full_filename)
-    self.log('{0} file size is {1}'.format(full_filename, filesize))
-
-    if (filesize):
-        old_data = json_reader(full_filename)
-        if not isinstance(old_data, list):
-            new_data = []
-            new_data.append(old_data)
-            old_data = new_data
-    else:
-        self.log('{} file is empty '.format(full_filename))
-        old_data = []
-    old_data.append(data)
-    json_writer(full_filename, old_data)

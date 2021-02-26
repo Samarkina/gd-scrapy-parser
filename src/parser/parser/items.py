@@ -8,7 +8,23 @@
 import scrapy
 
 
-class TutorialItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class ArticleItem(scrapy.Item):
+    """Item for Article
+
+    """
+    title = scrapy.Field()
+    url = scrapy.Field()
+    firstSymbols = scrapy.Field()
+    date = scrapy.Field()
+    authorName = scrapy.Field()
+    tags = scrapy.Field()
+
+
+class AuthorItem(scrapy.Item):
+    """Item for Author
+
+    """
+    name = scrapy.Field()
+    jobTitle = scrapy.Field()
+    linkedIn = scrapy.Field()
+    counterArticles = scrapy.Field()

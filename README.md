@@ -49,14 +49,26 @@ Extract to storage:
     - X-axis - counter with articles of tag theme
 
 ## Tests:
+You can run the tests with following command:
+`cd src/parser`
+`python3 -m unittest tests/test_crawler.py`
+
 ![tests](https://github.com/Samarkina/gd-scrapy-parser/blob/master/tests.png?raw=true)
 
 
 ## Installation
 Project requires [pip3](https://pypi.org/project/pip/) and [python3](https://www.python.org/downloads/) installation.
-Python 3.7.3 version is preferable.
-1. `git clone git@github.com:Samarkina/gd-scrapy-parser.git`
+Python 3.9.1 version is preferable.
+1. `git clone git@github.com:gridu/PYTHON-esamarkina.git`
 2. `pip3 install -r requirements.txt`
 
+Also, you can use [virtual env](https://docs.python.org/3/tutorial/venv.html)
+instead of Python installed on your computer.
+Steps for using virtual-env:
+1. Create the virtual-env `python3 -m venv <your-virtual-env-name>`
+2. Activate the virtual-env `source <your-virtual-env-name>/bin/activate`
+3. After that you can install all the libraries necessary for the work.
+
 ## Run the project
-`python3 src/parser/report.py`
+`cd src/parser/`
+`python3 report.py`

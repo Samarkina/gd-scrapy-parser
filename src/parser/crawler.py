@@ -1,18 +1,32 @@
 import logging
 from scrapy.crawler import CrawlerProcess
-import src.parser.functions as func
-import datetime
-import src.parser.parser.spiders.articles as articles
-import src.parser.parser.spiders.authors as authors
-import src.parser.vars as vars
+import functions as func
+import parser.spiders.articles as articles
+import parser.spiders.authors as authors
+import vars as vars
+from datetime import datetime
 
 
-def reading():
+def find_last_date(database):
+    """Find last date from database
+
+    :return: last date from database
+    """
+    try:
+        data = func.json_reader(database)
+        logging.info('The last date from database was found')
+        return extract_date(data[-1])
+    except:
+        return datetime.strptime("0001/01/01", '%Y/%m/%d')
+
+
+def crawling():
     """Reads all the site pages and writes in the temp file in
     /src/parser/parser/resources/tmp/ folder
     """
 
     spiders = [articles.ArticlesSpider, authors.AuthorsSpider]
+
     crawler = CrawlerProcess()
     for spider in spiders:
         crawler.crawl(spider)
@@ -21,15 +35,14 @@ def reading():
 
 
 def date_convert(date):
-    """Converting date to another format
-    ex. May 12 2020 to 2020/05/12
+    """Converting string date to datetime
 
-    :param date: Date in format like May 12 2020
-    :return: another format date (2020/05/12)
+    :param date: Date in string
+    :return: Date in datetime
     """
 
-    newDate = datetime.datetime.strptime(date, '%b %d %Y').strftime('%Y/%m/%d')
-    return newDate
+    new_date: datetime = datetime.strptime(date, '%b %d %Y')
+    return new_date
 
 
 def extract_date(json):
@@ -42,7 +55,7 @@ def extract_date(json):
     try:
         return date_convert(json['date'])
     except KeyError:
-        return 0
+        return datetime.strptime("0001/01/01", '%Y/%m/%d')
 
 
 def sort_json_by_date(articlesJson):
@@ -71,31 +84,25 @@ def sort_and_rewrite_json_file(fullFilename):
     func.json_writer(fullFilename, sortedData)
 
 
-def isExistArticle(article, fullFilenameDB):
-    """Сhecking for an article in DB file
-
-    :param article: article for checking
-    :param fullFilenameDB: full path filename to DB file
-    :return: bool (file existing)
-    """
-
-    data = func.json_reader(fullFilenameDB)
-    return article in data
-
-
-def get_new_data(full_filename_site, full_filename_db):
-    """geting new data from site, which is not in the database
-
+def get_new_data(full_filename_site, full_filename_db, last_date, load_type):
+    """getting new data from site, which is not in the database
+        and older than the most recent blog-post date
     :param full_filename_site: full path filename to Site file
     :param full_filename_db: path filename to DB file
+    :param last_date: last date from database
+    :param load_type: type of loading, can be "articles" or "authors"
     :return: new data from site
     """
 
     logging.info('Counting the delta from the site and the database')
     new_data = []
-    data = func.json_reader(full_filename_site)
-    for article in data:
-        if not isExistArticle(article, full_filename_db):
+    data_site = func.json_reader(full_filename_site)
+    data_db = func.json_reader(full_filename_db)
+
+    for article in data_site:
+        if article not in data_db \
+                and ((extract_date(article) >= last_date and load_type == "articles")
+                     or load_type == "authors"):
             new_data.append(article)
     if not new_data:
         logging.info('Site has NO new articles')
@@ -105,10 +112,11 @@ def get_new_data(full_filename_site, full_filename_db):
         return new_data
 
 
-def upload_new_data_to_DB(new_data, full_filename_db):
+def upload_new_data_to_db(new_data, full_filename_db):
     """upload new data to DB
 
-    :param newData: data for upload
+    :param new_data: data for upload
+    :param full_filename_db: full database filename
     :param fullFilenameDB: path filename to DB file
     """
 
@@ -125,22 +133,23 @@ def upload_new_data_to_DB(new_data, full_filename_db):
 def do_crawler():
     """main function for crawling
     """
+    logging.info('********* STEP 3. Find last date from the database *********')
+    last_date = find_last_date(vars.FULL_FILENAME_DB_ART)
 
-    logging.info('********* STEP 3. Read the data from the site *********')
-    reading()
+    logging.info('********* STEP 4. Read the data from the site *********')
+    crawling()
 
-    logging.info('********* STEP 4. Check new data *********')
-    new_data_art = get_new_data(vars.FULL_FILENAME_TEMP_ART, vars.FULL_FILENAME_DB_ART)
-    logging.info('New articles was found')
+    logging.info('********* STEP 5. Check new data *********')
+    new_data_art = get_new_data(vars.FULL_FILENAME_TEMP_ART, vars.FULL_FILENAME_DB_ART, last_date, "articles")
+    logging.info('Articles was checked')
 
-    new_data_auth = get_new_data(vars.FULL_FILENAME_TEMP_AUTH, vars.FULL_FILENAME_DB_AUTH)
-    logging.info('New authors was found')
+    new_data_auth = get_new_data(vars.FULL_FILENAME_TEMP_AUTH, vars.FULL_FILENAME_DB_AUTH, last_date, "authors")
+    logging.info('Authors was checked')
 
-    logging.info('********* STEP 5. Upload the new data to json-DB *********')
+    logging.info('********* STEP 6. Upload the new data to json-DB *********')
 
-    upload_new_data_to_DB(new_data_art, vars.FULL_FILENAME_DB_ART)
-    sort_and_rewrite_json_file(vars.FULL_FILENAME_DB_ART)
+    upload_new_data_to_db(new_data_art, vars.FULL_FILENAME_DB_ART)
     logging.info('New articles was uploaded in database')
 
-    upload_new_data_to_DB(new_data_auth, vars.FULL_FILENAME_DB_AUTH)
+    upload_new_data_to_db(new_data_auth, vars.FULL_FILENAME_DB_AUTH)
     logging.info('New authors was uploaded in database')

@@ -1,7 +1,7 @@
 import logging
 import os
 import shutil
-import src.parser.vars as vars
+import vars as vars
 
 
 def touch(path):

@@ -1,11 +1,11 @@
-import src.parser.crawler as crawler
+import crawler as crawler
 import logging
 import database
 import pandas as pd
 import functions as func
 import matplotlib.pyplot as plt
 import json
-import src.parser.vars as vars
+import vars as vars
 
 
 def authors_report(filename_db_auth):
@@ -55,7 +55,7 @@ def tags_report(filename_db_art):
     for k, v in article_df['tags'].items():
         for tag in v:
             tags = tags.append({'tags': tag}, ignore_index=True)
-    tags_with_count = tags.groupby('tags', as_index=False)['tags'].size().to_frame('count').reset_index()
+    tags_with_count = tags.groupby('tags', as_index=False)['tags'].size().rename(columns={"size": "count"}).reset_index()
     sorted_tags = tags_with_count.sort_values(by=['count'])[-7:]
 
     sorted_tags['tags'] = sorted_tags['tags'].str.wrap(12)
@@ -94,18 +94,42 @@ def create_report(filename_db_art, filename_db_auth):
     return report
 
 
+def report_print(report: dict):
+    """Printing report to standard output
+
+    :param report: dict with format like {
+                                    "authors": authors_report_data,
+                                    "articles": articles_report_data,
+                                    "tags": tags_report_data
+                                    }
+    :return:
+    """
+    for row in report:
+        print("************************************ {} ************************************".format(row))
+        if row == "tags":
+            print("Path to image: {}".format(report[row]))
+        else:
+            df = pd.DataFrame.from_dict(report[row])
+            pd.set_option('display.max_columns', None)
+            print(df)
+
+
 if __name__ == "__main__":
-    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+    logging.disable(logging.DEBUG)
+
     logging.info('********* STEP 0. Program is starting... *********')
     database.create_database()
 
     logging.info('********* STEP 2. Start crawling... *********')
     crawler.do_crawler()
 
-    logging.info('********* STEP 6. Do the report *********')
+    logging.info('********* STEP 7. Do the report *********')
     report = create_report(vars.FULL_FILENAME_DB_ART, vars.FULL_FILENAME_DB_AUTH)
 
-    logging.info('********* STEP 7. Upload the report to the json-DB *********')
+    logging.info('********* STEP 8. Upload the report to the json-DB *********')
     func.json_writer(vars.FULL_FILENAME_DB_REP, report)
+
+    logging.info('********* STEP 9. Print report to standard output *********')
+    report_print(report)
 
     database.remover_temps()

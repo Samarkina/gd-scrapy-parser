@@ -1,20 +1,24 @@
 import scrapy
 import re
-import src.parser.functions as func
+import functions as func
+import parser.items as items
+
 
 class ArticlesSpider(scrapy.Spider):
     name = "articles"
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "parser.pipelines.ArticlesPipeline": 300,
+        }
+    }
 
     def start_requests(self):
         """Start the parsing
 
         :return:
         """
-        urls = [
-            'https://blog.griddynamics.com/'
-        ]
-        for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse)
+        url = 'https://blog.griddynamics.com/'
+        yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
         """Parsing article urls
@@ -41,7 +45,10 @@ class ArticlesSpider(scrapy.Spider):
 
         urls = func.do_urls(references + top_references)
 
-        for url in urls:
+        # needs get only new urls
+        new_urls = func.get_new_urls(urls)
+
+        for url in new_urls:
             yield scrapy.Request(url=url, callback=self.parse_articles)
 
     def parse_articles(self, response):
@@ -50,14 +57,21 @@ class ArticlesSpider(scrapy.Spider):
         :param response:
         :return:
         """
-        title = response.css('h2.mb30::text').get()  # 1
+        title = response.css('h1.mb30::text').get()  # 1
         url = response.css('link[rel*=canonical]::attr(href)').get()  # 2
         first_symbols = response.css('.container p::text').get()[0:160]  # 3
         date = re.sub('[^A-Za-z0-9 ]+', '', response.css('.sdate::text').get()).strip()  # 4
         author_name = response.css('.name::text').get().strip()  # 5
         tags = response.css('meta[property*=\'article:tag\']::attr(content)').getall()  # 6
 
-        data = {"title": title, "url": url, "firstSymbols": first_symbols, "date": date, "authorName": author_name,
-                "tags": tags}
+        data = items.ArticleItem()
+        data['title'] = title
+        data['url'] = url
+        data['firstSymbols'] = first_symbols
+        data['date'] = date
+        data['authorName'] = author_name
+        data['tags'] = tags
 
-        func.upload_data(self, "articles_temp", data)
+        yield data
+
+
